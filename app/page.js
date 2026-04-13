@@ -12,13 +12,12 @@ import {
 } from 'recharts';
 
 export default function Home() {
-  const [view, setView] = useState('home'); // home, upload, result
+  const [view, setView] = useState('home');
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [extraAnalysis, setExtraAnalysis] = useState("");
 
-  // Step 1: Handle the initial PDF Upload
   const handleUpload = async () => {
     if (!file) return;
     setLoading(true);
@@ -26,7 +25,6 @@ export default function Home() {
     formData.append('file', file);
 
     try {
-      // Connects to your Spring Boot Controller @PostMapping("/upload")
       const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
       const response = await axios.post(`${API_BASE_URL}/api/resumes/upload`, formData);
       setResult(response.data);
@@ -39,12 +37,10 @@ export default function Home() {
     }
   };
 
-  // Step 2: Handle the "View More" Deep Analysis
   const handleDeepAnalysis = async () => {
     if (!result?.id) return;
     setLoading(true);
     try {
-      // We send the ID to the backend so it can pull the ACTUAL resume matter
       const response = await axios.get(`http://localhost:8082/api/resumes/${result.id}/deep-analysis`);
       setExtraAnalysis(response.data);
     } catch (err) {
@@ -57,7 +53,6 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-start bg-background text-text selection:bg-primary/30 overflow-x-hidden">
       
-      {/* --- NAVIGATION BAR --- */}
       <nav className="w-full flex justify-between items-center py-10 px-8 md:px-16 self-stretch">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-primary rounded-2xl shadow-[0_0_25px_rgba(139,92,246,0.6)] border border-primary/20">
@@ -79,7 +74,6 @@ export default function Home() {
       <div className="w-full px-8 md:px-16 pb-24">
         <AnimatePresence mode="wait">
           
-          {/* VIEW 1: LANDING HERO (Left Aligned) */}
           {view === 'home' && (
             <motion.section 
               key="home" 
@@ -107,7 +101,6 @@ export default function Home() {
             </motion.section>
           )}
 
-          {/* VIEW 2: UPLOAD PAGE (Centered) */}
           {view === 'upload' && !loading && (
             <motion.section 
               key="upload" 
@@ -158,7 +151,6 @@ export default function Home() {
             </motion.section>
           )}
 
-          {/* LOADING STATE */}
           {loading && (
             <motion.div key="loading" className="w-full flex flex-col items-center justify-center py-48 gap-8">
               <div className="w-24 h-24 border-8 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -166,11 +158,9 @@ export default function Home() {
             </motion.div>
           )}
 
-          {/* VIEW 3: RESULTS DASHBOARD */}
           {view === 'result' && result && !loading && (
             <motion.section key="result" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-12 w-full mt-10">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                {/* Left side: Content */}
                 <div className="lg:col-span-7 flex flex-col gap-10">
                   <div className="glass-card p-10 rounded-4xl">
                     <h3 className="text-3xl font-black mb-6 flex items-center gap-3 italic uppercase">
@@ -202,7 +192,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Right side: Charts */}
                 <div className="lg:col-span-5 flex flex-col gap-10">
                   <div className="glass-card p-10 rounded-4xl flex flex-col items-center">
                     <h3 className="text-xl font-black mb-10 self-start uppercase tracking-widest opacity-40 italic">Neural Scoreboard</h3>
@@ -223,7 +212,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Expansion Area for Deep Analysis */}
               <AnimatePresence>
                 {extraAnalysis && (
                   <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-12 rounded-4xl relative overflow-hidden w-full">
@@ -238,7 +226,6 @@ export default function Home() {
                 )}
               </AnimatePresence>
 
-              {/* FOOTER: CHECK MORE */}
               <footer className="w-full flex justify-between items-center py-10 mt-10 border-t border-white/10 glass-card px-10 rounded-3xl">
                 <div>
                   <span className="text-2xl font-black tracking-tight uppercase italic text-primary">Want to check more?</span>
