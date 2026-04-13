@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #09090b;
+  --color-panel: rgba(24, 24, 27, 0.7);
+  --color-primary: #8b5cf6;
+  --color-accent: #ec4899;
+  --color-text: #fafafa;
+  --color-subtext: #a1a1aa;
+  --radius-4xl: 2.5rem;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-smoothing: antialiased;
+  background-image: radial-gradient(circle at top right, rgba(139, 92, 246, 0.08), transparent),
+                    radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.05), transparent);
+  min-height: 100vh;
+}
+
+.glass-card {
+  background-color: var(--color-panel);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
