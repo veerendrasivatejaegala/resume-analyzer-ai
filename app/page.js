@@ -18,6 +18,9 @@ export default function Home() {
   const [result, setResult] = useState(null);
   const [extraAnalysis, setExtraAnalysis] = useState("");
 
+  // Base URL from Environment Variables
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
   const handleUpload = async () => {
     if (!file) return;
     setLoading(true);
@@ -25,13 +28,12 @@ export default function Home() {
     formData.append('file', file);
 
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
       const response = await axios.post(`${API_BASE_URL}/api/resumes/upload`, formData);
       setResult(response.data);
       setView('result');
     } catch (err) {
       console.error(err);
-      alert("Backend Error: Ensure Spring Boot is running on Port 8082 with CORS enabled.");
+      alert("Upload Failed: Check if Render backend is awake and CORS is allowed for Vercel.");
     } finally {
       setLoading(false);
     }
@@ -40,11 +42,16 @@ export default function Home() {
   const handleDeepAnalysis = async () => {
     if (!result?.id) return;
     setLoading(true);
+    
+    // Add 1.5s delay to allow TiDB Cloud to finish indexing the new record
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
     try {
-      const response = await axios.get(`http://localhost:8082/api/resumes/${result.id}/deep-analysis`);
+      const response = await axios.get(`${API_BASE_URL}/api/resumes/${result.id}/deep-analysis`);
       setExtraAnalysis(response.data);
     } catch (err) {
-      alert("Deep Analysis failed. Check if Backend is using the Resume ID.");
+      console.error(err);
+      alert("Deep Analysis failed. The database might still be syncing. Please wait a moment and try again.");
     } finally {
       setLoading(false);
     }
@@ -53,6 +60,7 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-start bg-background text-text selection:bg-primary/30 overflow-x-hidden">
       
+      {/* Navigation */}
       <nav className="w-full flex justify-between items-center py-10 px-8 md:px-16 self-stretch">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-primary rounded-2xl shadow-[0_0_25px_rgba(139,92,246,0.6)] border border-primary/20">
@@ -74,6 +82,7 @@ export default function Home() {
       <div className="w-full px-8 md:px-16 pb-24">
         <AnimatePresence mode="wait">
           
+          {/* Hero Section */}
           {view === 'home' && (
             <motion.section 
               key="home" 
@@ -101,6 +110,7 @@ export default function Home() {
             </motion.section>
           )}
 
+          {/* Upload Section */}
           {view === 'upload' && !loading && (
             <motion.section 
               key="upload" 
@@ -151,6 +161,7 @@ export default function Home() {
             </motion.section>
           )}
 
+          {/* Loading View */}
           {loading && (
             <motion.div key="loading" className="w-full flex flex-col items-center justify-center py-48 gap-8">
               <div className="w-24 h-24 border-8 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -158,6 +169,7 @@ export default function Home() {
             </motion.div>
           )}
 
+          {/* Result Section */}
           {view === 'result' && result && !loading && (
             <motion.section key="result" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-12 w-full mt-10">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -192,6 +204,7 @@ export default function Home() {
                   </div>
                 </div>
 
+                {/* Scoreboard */}
                 <div className="lg:col-span-5 flex flex-col gap-10">
                   <div className="glass-card p-10 rounded-4xl flex flex-col items-center">
                     <h3 className="text-xl font-black mb-10 self-start uppercase tracking-widest opacity-40 italic">Neural Scoreboard</h3>
@@ -212,6 +225,7 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* Extra Neural Analysis */}
               <AnimatePresence>
                 {extraAnalysis && (
                   <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-12 rounded-4xl relative overflow-hidden w-full">
@@ -226,6 +240,7 @@ export default function Home() {
                 )}
               </AnimatePresence>
 
+              {/* Footer Actions */}
               <footer className="w-full flex justify-between items-center py-10 mt-10 border-t border-white/10 glass-card px-10 rounded-3xl">
                 <div>
                   <span className="text-2xl font-black tracking-tight uppercase italic text-primary">Want to check more?</span>
